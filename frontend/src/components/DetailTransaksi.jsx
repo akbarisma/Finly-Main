@@ -29,7 +29,7 @@ export default function DetailTransaksi() {
     return () => { cancel = true; };
   }, [month, type, category, search, page]);
 
-  const cats = type === "income" ? INCOME_CATEGORIES : type === "outcome" ? OUTCOME_CATEGORIES : [...INCOME_CATEGORIES, ...OUTCOME_CATEGORIES];
+  const cats = type === "income" ? INCOME_CATEGORIES : type === "outcome" ? OUTCOME_CATEGORIES : [...new Set([...INCOME_CATEGORIES, ...OUTCOME_CATEGORIES])];
 
   const onDelete = async (id) => {
     if (!window.confirm("Hapus transaksi ini?")) return;
