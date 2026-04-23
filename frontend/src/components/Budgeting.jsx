@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Plus, Trash, FloppyDisk, Coin } from "@phosphor-icons/react";
 import api from "../services/api";
 import { formatRupiah, currentMonth, monthLabel, stripDigits, OUTCOME_CATEGORIES } from "../services/utils";
+import ConfirmDialog from "./ConfirmDialog";
 
 export default function Budgeting() {
   const [month, setMonth] = useState(currentMonth());
@@ -13,6 +14,7 @@ export default function Budgeting() {
   const [msg, setMsg] = useState(null);
   const [capMsg, setCapMsg] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [confirm, setConfirm] = useState({ open: false, kind: null, saving: false });
 
   const load = async () => {
     setLoading(true);
@@ -48,29 +50,43 @@ export default function Budgeting() {
     setItems(items.filter((_, idx) => idx !== i));
   };
 
-  const save = async () => {
-    const payload = items
-      .filter((it) => it.category && it.amount)
-      .map((it) => ({ category: it.category, amount: Number(it.amount) }));
-    if (!payload.length) {
+  const budgetPayload = items
+    .filter((it) => it.category && it.amount)
+    .map((it) => ({ category: it.category, amount: Number(it.amount) }));
+  const budgetSum = budgetPayload.reduce((s, it) => s + it.amount, 0);
+
+  const requestSaveBudget = () => {
+    if (!budgetPayload.length) {
       setMsg({ kind: "err", text: "Tidak ada baris anggaran untuk disimpan." });
       return;
     }
+    setConfirm({ open: true, kind: "budget", saving: false });
+  };
+
+  const doSaveBudget = async () => {
+    setConfirm((c) => ({ ...c, saving: true }));
     try {
-      await api.saveBudgets({ month, items: payload });
+      await api.saveBudgets({ month, items: budgetPayload });
       setMsg({ kind: "ok", text: "Anggaran tersimpan." });
       load();
       setTimeout(() => setMsg(null), 2500);
     } catch (e) {
       setMsg({ kind: "err", text: e?.response?.data?.detail || "Gagal menyimpan." });
+    } finally {
+      setConfirm({ open: false, kind: null, saving: false });
     }
   };
 
-  const saveCapital = async () => {
+  const requestSaveCapital = () => {
     if (!capital.amount || Number(capital.amount) < 0) {
       setCapMsg({ kind: "err", text: "Nominal modal awal harus ≥ 0." });
       return;
     }
+    setConfirm({ open: true, kind: "capital", saving: false });
+  };
+
+  const doSaveCapital = async () => {
+    setConfirm((c) => ({ ...c, saving: true }));
     try {
       await api.saveMonthlyCapital({
         month,
@@ -82,6 +98,8 @@ export default function Budgeting() {
       setTimeout(() => setCapMsg(null), 2500);
     } catch (e) {
       setCapMsg({ kind: "err", text: e?.response?.data?.detail || "Gagal menyimpan." });
+    } finally {
+      setConfirm({ open: false, kind: null, saving: false });
     }
   };
 
@@ -167,7 +185,7 @@ export default function Budgeting() {
             />
           </div>
           <div className="flex gap-2">
-            <button onClick={saveCapital} className="btn-ink flex items-center gap-2 flex-1 justify-center" data-testid="monthly-capital-save">
+            <button onClick={requestSaveCapital} className="btn-ink flex items-center gap-2 flex-1 justify-center" data-testid="monthly-capital-save">
               <FloppyDisk size={14} /> Simpan
             </button>
             {capital.exists && (
@@ -212,7 +230,7 @@ export default function Budgeting() {
           </div>
           <div className="flex gap-2">
             <button onClick={addRow} className="btn-ghost flex items-center gap-2" data-testid="budget-add-row"><Plus size={14} /> Tambah Kategori</button>
-            <button onClick={save} className="btn-ink flex items-center gap-2" data-testid="budget-save"><FloppyDisk size={14} /> Simpan</button>
+            <button onClick={requestSaveBudget} className="btn-ink flex items-center gap-2" data-testid="budget-save"><FloppyDisk size={14} /> Simpan</button>
           </div>
         </div>
 
@@ -319,6 +337,40 @@ export default function Budgeting() {
           </table>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirm.open}
+        title={confirm.kind === "capital" ? "Simpan Modal Awal?" : "Simpan Anggaran?"}
+        subtitle={
+          confirm.kind === "capital"
+            ? "Modal awal akan tercatat sebagai pengeluaran di awal bulan dan ikut dihitung pada Laba/Rugi."
+            : "Anggaran akan meng-upsert (menimpa) plafon per kategori pada bulan yang dipilih."
+        }
+        rows={
+          confirm.kind === "capital"
+            ? [
+                { label: "Bulan", value: monthLabel(month) },
+                { label: "Nominal", value: formatRupiah(capital.amount), accent: "neg" },
+                { label: "Keterangan", value: capital.description || "—" },
+              ]
+            : [
+                { label: "Bulan", value: monthLabel(month) },
+                { label: "Jumlah Kategori", value: `${budgetPayload.length} baris` },
+                ...budgetPayload.slice(0, 5).map((it) => ({
+                  label: it.category,
+                  value: formatRupiah(it.amount),
+                })),
+                ...(budgetPayload.length > 5
+                  ? [{ label: "…", value: `+${budgetPayload.length - 5} kategori lainnya` }]
+                  : []),
+                { label: "Total", value: formatRupiah(budgetSum), accent: "neg" },
+              ]
+        }
+        confirmLabel={confirm.kind === "capital" ? "Ya, Simpan Modal Awal" : "Ya, Simpan Anggaran"}
+        onCancel={() => !confirm.saving && setConfirm({ open: false, kind: null, saving: false })}
+        onConfirm={confirm.kind === "capital" ? doSaveCapital : doSaveBudget}
+        loading={confirm.saving}
+      />
     </div>
   );
 }

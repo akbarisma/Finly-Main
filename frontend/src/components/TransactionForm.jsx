@@ -5,6 +5,7 @@ import {
   formatRupiah, stripDigits, todayISO, formatDateID,
   INCOME_CATEGORIES, OUTCOME_CATEGORIES,
 } from "../services/utils";
+import ConfirmDialog from "./ConfirmDialog";
 
 const emptyForm = () => ({
   type: "income",
@@ -20,6 +21,7 @@ export default function TransactionForm() {
   const [msg, setMsg] = useState(null);
   const [recent, setRecent] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const categories = form.type === "income" ? INCOME_CATEGORIES : OUTCOME_CATEGORIES;
 
@@ -42,11 +44,17 @@ export default function TransactionForm() {
     return e;
   };
 
-  const submit = async (ev) => {
+  // Opens confirm dialog after local validation
+  const requestSave = (ev) => {
     ev.preventDefault();
     const v = validate();
     setErrors(v);
     if (Object.keys(v).length) return;
+    setConfirmOpen(true);
+  };
+
+  // Actually submit after user confirms
+  const confirmSave = async () => {
     setLoading(true);
     try {
       await api.addTransaction({
@@ -58,10 +66,12 @@ export default function TransactionForm() {
       });
       setMsg({ kind: "ok", text: "Transaksi berhasil dicatat." });
       setForm({ ...emptyForm(), type: form.type });
+      setConfirmOpen(false);
       loadRecent();
       setTimeout(() => setMsg(null), 2500);
     } catch (e2) {
       setMsg({ kind: "err", text: e2?.response?.data?.detail || "Gagal menyimpan." });
+      setConfirmOpen(false);
     } finally {
       setLoading(false);
     }
@@ -74,6 +84,14 @@ export default function TransactionForm() {
 
   const setType = (t) => setForm({ ...form, type: t, category: "" });
 
+  const confirmRows = [
+    { label: "Jenis", value: form.type === "income" ? "Pemasukan" : "Pengeluaran", accent: form.type === "income" ? "pos" : "neg" },
+    { label: "Kategori", value: form.category || "—" },
+    { label: "Nominal", value: formatRupiah(form.amount), accent: form.type === "income" ? "pos" : "neg" },
+    { label: "Tanggal", value: formatDateID(form.date) },
+    { label: "Deskripsi", value: form.description || "—" },
+  ];
+
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6" data-testid="transaksi-page">
       <div className="page-hero">
@@ -84,7 +102,7 @@ export default function TransactionForm() {
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         {/* FORM */}
-        <form onSubmit={submit} className="brut-card p-6 lg:col-span-2 space-y-5" data-testid="tx-form">
+        <form onSubmit={requestSave} className="brut-card p-6 lg:col-span-2 space-y-5" data-testid="tx-form">
           <div>
             <div className="label-brut">Jenis</div>
             <div className="grid grid-cols-2 gap-0 border hairline-strong">
@@ -230,6 +248,17 @@ export default function TransactionForm() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Simpan Transaksi?"
+        subtitle="Periksa ulang detail di bawah sebelum data keuangan disimpan ke buku besar."
+        rows={confirmRows}
+        confirmLabel="Ya, Simpan Transaksi"
+        onCancel={() => !loading && setConfirmOpen(false)}
+        onConfirm={confirmSave}
+        loading={loading}
+      />
     </div>
   );
 }
