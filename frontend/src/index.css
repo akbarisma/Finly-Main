@@ -1,115 +1,240 @@
+@import url('https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg: #F7F7F5;
+  --surface: #FFFFFF;
+  --ink: #0A0A0A;
+  --ink-soft: #525252;
+  --line: rgba(10, 10, 10, 0.15);
+  --line-strong: rgba(10, 10, 10, 1);
+  --pos: #059669;
+  --neg: #E11D48;
+  --ml: #002FA7;
+  --ml-bg: #0A0A0A;
+  --ml-ink: #E5E5E5;
+}
+
+html, body, #root { height: 100%; }
+
 body {
-    margin: 0;
-    font-family:
-        -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-        "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-        sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-    font-family:
-        source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+.font-display { font-family: 'Chivo', sans-serif; letter-spacing: -0.02em; }
+.font-body { font-family: 'IBM Plex Sans', sans-serif; }
+.font-mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "tnum"; }
+
+.overline {
+  font-family: 'IBM Plex Sans', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-soft);
 }
 
+.hairline { border-color: var(--line); }
+.hairline-strong { border-color: var(--line-strong); }
+
+.brut-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0;
+}
+
+.brut-card-solid {
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+}
+
+.btn-ink {
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 18px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  transition: background 120ms ease, color 120ms ease;
+  cursor: pointer;
+}
+.btn-ink:hover:not(:disabled) { background: #171717; }
+.btn-ink:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  padding: 9px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  transition: all 120ms ease;
+  cursor: pointer;
+}
+.btn-ghost:hover { background: var(--ink); color: #fff; }
+
+.input-brut {
+  width: 100%;
+  padding: 11px 14px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  transition: border-color 120ms ease;
+}
+.input-brut:focus {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+
+.input-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.label-brut {
+  display: block;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.ml-panel {
+  background: var(--ml-bg);
+  color: var(--ml-ink);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0;
+  position: relative;
+}
+.ml-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.ml-text { color: #E5E5E5; font-family: 'JetBrains Mono', monospace; }
+.ml-accent { color: #7FB3FF; }
+.ml-glow {
+  text-shadow: 0 0 12px rgba(127, 179, 255, 0.5);
+}
+
+.ticker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-soft);
+  letter-spacing: 0.08em;
+}
+
+.kpi-value {
+  font-family: 'Chivo', sans-serif;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.grid-lines {
+  background-image:
+    linear-gradient(to right, var(--line) 1px, transparent 1px);
+  background-size: calc(100% / 12) 100%;
+}
+
+table.brut-table { border-collapse: collapse; width: 100%; }
+table.brut-table th {
+  text-align: left;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line-strong);
+  background: transparent;
+}
+table.brut-table td {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  padding: 14px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+table.brut-table tr:hover td { background: rgba(10,10,10,0.02); }
+
+.text-pos { color: var(--pos); }
+.text-neg { color: var(--neg); }
+.bg-pos-soft { background: rgba(5, 150, 105, 0.08); }
+.bg-neg-soft { background: rgba(225, 29, 72, 0.08); }
+
+.tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border: 1px solid var(--line-strong);
+  text-transform: uppercase;
+}
+.tag-income { background: rgba(5,150,105,0.1); border-color: var(--pos); color: var(--pos); }
+.tag-outcome { background: rgba(225,29,72,0.08); border-color: var(--neg); color: var(--neg); }
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+.blink-dot { animation: blink 1.2s steps(2, start) infinite; }
+
+.scroll-custom::-webkit-scrollbar { width: 6px; height: 6px; }
+.scroll-custom::-webkit-scrollbar-thumb { background: rgba(10,10,10,0.2); }
+.scroll-custom::-webkit-scrollbar-track { background: transparent; }
+
+/* Shadcn baseline variables — keep components functional */
 @layer base {
-    :root {
-        --background: 0 0% 100%;
-        --foreground: 0 0% 3.9%;
-        --card: 0 0% 100%;
-        --card-foreground: 0 0% 3.9%;
-        --popover: 0 0% 100%;
-        --popover-foreground: 0 0% 3.9%;
-        --primary: 0 0% 9%;
-        --primary-foreground: 0 0% 98%;
-        --secondary: 0 0% 96.1%;
-        --secondary-foreground: 0 0% 9%;
-        --muted: 0 0% 96.1%;
-        --muted-foreground: 0 0% 45.1%;
-        --accent: 0 0% 96.1%;
-        --accent-foreground: 0 0% 9%;
-        --destructive: 0 84.2% 60.2%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 89.8%;
-        --input: 0 0% 89.8%;
-        --ring: 0 0% 3.9%;
-        --chart-1: 12 76% 61%;
-        --chart-2: 173 58% 39%;
-        --chart-3: 197 37% 24%;
-        --chart-4: 43 74% 66%;
-        --chart-5: 27 87% 67%;
-        --radius: 0.5rem;
-    }
-    .dark {
-        --background: 0 0% 3.9%;
-        --foreground: 0 0% 98%;
-        --card: 0 0% 3.9%;
-        --card-foreground: 0 0% 98%;
-        --popover: 0 0% 3.9%;
-        --popover-foreground: 0 0% 98%;
-        --primary: 0 0% 98%;
-        --primary-foreground: 0 0% 9%;
-        --secondary: 0 0% 14.9%;
-        --secondary-foreground: 0 0% 98%;
-        --muted: 0 0% 14.9%;
-        --muted-foreground: 0 0% 63.9%;
-        --accent: 0 0% 14.9%;
-        --accent-foreground: 0 0% 98%;
-        --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 14.9%;
-        --input: 0 0% 14.9%;
-        --ring: 0 0% 83.1%;
-        --chart-1: 220 70% 50%;
-        --chart-2: 160 60% 45%;
-        --chart-3: 30 80% 55%;
-        --chart-4: 280 65% 60%;
-        --chart-5: 340 75% 55%;
-    }
-}
-
-@layer base {
-    * {
-        @apply border-border;
-    }
-    body {
-        @apply bg-background text-foreground;
-    }
-}
-
-@layer base {
-    [data-debug-wrapper="true"] {
-        display: contents !important;
-    }
-
-    [data-debug-wrapper="true"] > * {
-        margin-left: inherit;
-        margin-right: inherit;
-        margin-top: inherit;
-        margin-bottom: inherit;
-        padding-left: inherit;
-        padding-right: inherit;
-        padding-top: inherit;
-        padding-bottom: inherit;
-        column-gap: inherit;
-        row-gap: inherit;
-        gap: inherit;
-        border-left-width: inherit;
-        border-right-width: inherit;
-        border-top-width: inherit;
-        border-bottom-width: inherit;
-        border-left-style: inherit;
-        border-right-style: inherit;
-        border-top-style: inherit;
-        border-bottom-style: inherit;
-        border-left-color: inherit;
-        border-right-color: inherit;
-        border-top-color: inherit;
-        border-bottom-color: inherit;
-    }
+  :root {
+    --background: 0 0% 97%;
+    --foreground: 0 0% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 4%;
+    --primary: 0 0% 4%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 94%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 32%;
+    --accent: 0 0% 94%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 348 83% 47%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 0 0% 4%;
+    --radius: 0px;
+  }
 }

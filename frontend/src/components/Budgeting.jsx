@@ -1,0 +1,217 @@
+import { useEffect, useState } from "react";
+import { Plus, Trash, FloppyDisk } from "@phosphor-icons/react";
+import api from "../services/api";
+import { formatRupiah, currentMonth, monthLabel, stripDigits, OUTCOME_CATEGORIES } from "../services/utils";
+
+export default function Budgeting() {
+  const [month, setMonth] = useState(currentMonth());
+  const [items, setItems] = useState([]);
+  const [serverItems, setServerItems] = useState([]);
+  const [totalBudget, setTotalBudget] = useState(0);
+  const [totalReal, setTotalReal] = useState(0);
+  const [msg, setMsg] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const d = await api.getBudgets(month);
+      setServerItems(d.budgets || []);
+      setItems(
+        (d.budgets || [])
+          .filter((b) => b.id)
+          .map((b) => ({ id: b.id, category: b.category, amount: String(b.budget) }))
+      );
+      setTotalBudget(d.total_budget);
+      setTotalReal(d.total_realisasi);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [month]);
+
+  const addRow = () => setItems([...items, { id: null, category: "", amount: "" }]);
+  const rmRow = async (i) => {
+    const it = items[i];
+    if (it.id) {
+      try { await api.deleteBudget(it.id); } catch { /* noop */ }
+    }
+    setItems(items.filter((_, idx) => idx !== i));
+  };
+
+  const save = async () => {
+    const payload = items
+      .filter((it) => it.category && it.amount)
+      .map((it) => ({ category: it.category, amount: Number(it.amount) }));
+    if (!payload.length) {
+      setMsg({ kind: "err", text: "Tidak ada baris anggaran untuk disimpan." });
+      return;
+    }
+    try {
+      await api.saveBudgets({ month, items: payload });
+      setMsg({ kind: "ok", text: "Anggaran tersimpan." });
+      load();
+      setTimeout(() => setMsg(null), 2500);
+    } catch (e) {
+      setMsg({ kind: "err", text: e?.response?.data?.detail || "Gagal menyimpan." });
+    }
+  };
+
+  const setRow = (i, patch) => {
+    const copy = [...items];
+    copy[i] = { ...copy[i], ...patch };
+    setItems(copy);
+  };
+
+  return (
+    <div className="px-8 py-8 space-y-6" data-testid="budgeting-page">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b hairline-strong pb-6">
+        <div>
+          <div className="overline">MODUL 03 · ANGGARAN BULANAN</div>
+          <h1 className="font-display font-black text-5xl tracking-tighter mt-2">Anggaran</h1>
+          <p className="text-sm text-[var(--ink-soft)] mt-2 font-mono">{monthLabel(month)}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <label className="overline">BULAN</label>
+          <input type="month" className="input-brut input-mono max-w-[200px]" value={month} onChange={(e) => setMonth(e.target.value)} data-testid="budget-month-picker" />
+        </div>
+      </div>
+
+      {/* Summary strip */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="brut-card p-5" data-testid="budget-total-plan">
+          <div className="overline">TOTAL ANGGARAN</div>
+          <div className="kpi-value text-3xl mt-2">{formatRupiah(totalBudget)}</div>
+        </div>
+        <div className="brut-card p-5" data-testid="budget-total-real">
+          <div className="overline">TOTAL REALISASI</div>
+          <div className="kpi-value text-3xl mt-2 font-mono">{formatRupiah(totalReal)}</div>
+        </div>
+        <div className="brut-card p-5" data-testid="budget-total-selisih">
+          <div className="overline">SELISIH</div>
+          <div className={`kpi-value text-3xl mt-2 ${totalBudget - totalReal >= 0 ? "text-pos" : "text-neg"}`}>
+            {formatRupiah(totalBudget - totalReal)}
+          </div>
+        </div>
+      </div>
+
+      {/* Plan editor */}
+      <div className="brut-card p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="overline">EDITOR ANGGARAN</div>
+            <div className="font-display font-bold text-xl tracking-tight mt-1">Tetapkan plafon per kategori</div>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={addRow} className="btn-ghost flex items-center gap-2" data-testid="budget-add-row"><Plus size={14} /> Tambah Kategori</button>
+            <button onClick={save} className="btn-ink flex items-center gap-2" data-testid="budget-save"><FloppyDisk size={14} /> Simpan</button>
+          </div>
+        </div>
+
+        {msg && (
+          <div className={`px-3 py-2 text-sm font-mono border ${msg.kind === "ok" ? "border-[var(--pos)] bg-pos-soft text-pos" : "border-[var(--neg)] bg-neg-soft text-neg"}`} data-testid="budget-message">
+            {msg.text}
+          </div>
+        )}
+
+        <div className="overflow-x-auto scroll-custom">
+          <table className="brut-table">
+            <thead>
+              <tr>
+                <th>Kategori</th>
+                <th style={{ width: 220 }}>Anggaran</th>
+                <th style={{ width: 60 }}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.length === 0 && (
+                <tr><td colSpan="3" className="text-center text-[var(--ink-soft)] font-mono py-6">Klik <b>Tambah Kategori</b> untuk mulai.</td></tr>
+              )}
+              {items.map((it, i) => (
+                <tr key={i}>
+                  <td>
+                    <input
+                      list="cat-list"
+                      className="input-brut"
+                      value={it.category}
+                      onChange={(e) => setRow(i, { category: e.target.value })}
+                      placeholder="contoh: Marketing"
+                      data-testid={`budget-cat-${i}`}
+                    />
+                    <datalist id="cat-list">
+                      {OUTCOME_CATEGORIES.map((c) => <option key={c} value={c} />)}
+                    </datalist>
+                  </td>
+                  <td>
+                    <input
+                      className="input-brut input-mono"
+                      inputMode="numeric"
+                      value={it.amount ? Number(it.amount).toLocaleString("id-ID") : ""}
+                      onChange={(e) => setRow(i, { amount: stripDigits(e.target.value) })}
+                      placeholder="0"
+                      data-testid={`budget-amount-${i}`}
+                    />
+                  </td>
+                  <td className="text-right">
+                    <button onClick={() => rmRow(i)} className="p-1 hover:bg-neg-soft" data-testid={`budget-remove-${i}`}>
+                      <Trash size={14} className="text-neg" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Realisasi table */}
+      <div className="brut-card p-6" data-testid="budget-realisasi-table">
+        <div className="overline">REALISASI vs ANGGARAN</div>
+        <div className="font-display font-bold text-xl tracking-tight mt-1">Kinerja kategori</div>
+        <div className="overflow-x-auto scroll-custom mt-4">
+          <table className="brut-table">
+            <thead>
+              <tr>
+                <th>Kategori</th>
+                <th className="text-right">Anggaran</th>
+                <th className="text-right">Realisasi</th>
+                <th className="text-right">Selisih</th>
+                <th style={{ width: 140 }}>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading && <tr><td colSpan="5" className="text-center font-mono py-6 text-[var(--ink-soft)]">Memuat…</td></tr>}
+              {!loading && serverItems.length === 0 && (
+                <tr><td colSpan="5" className="text-center font-mono py-6 text-[var(--ink-soft)]">Belum ada anggaran.</td></tr>
+              )}
+              {serverItems.map((b, i) => {
+                const ratio = b.budget > 0 ? Math.min(1, b.realisasi / b.budget) : 1;
+                const over = b.status === "over";
+                return (
+                  <tr key={i} data-testid={`budget-row-${b.category}`}>
+                    <td className="font-medium">{b.category}</td>
+                    <td className="font-mono text-right">{formatRupiah(b.budget)}</td>
+                    <td className="font-mono text-right">{formatRupiah(b.realisasi)}</td>
+                    <td className={`font-mono text-right ${b.selisih >= 0 ? "text-pos" : "text-neg"}`}>{formatRupiah(b.selisih)}</td>
+                    <td>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-1.5 bg-black/10">
+                          <div
+                            className="h-full"
+                            style={{ width: `${ratio * 100}%`, background: over ? "var(--neg)" : "var(--pos)" }}
+                          />
+                        </div>
+                        <span className={`tag ${over ? "tag-outcome" : "tag-income"}`}>{over ? "OVER" : "OK"}</span>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
