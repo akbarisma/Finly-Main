@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Logo from "./Logo";
 
 /**
  * Full-screen brand loading overlay for Finly.
@@ -56,10 +57,10 @@ export default function LoadingScreen({ label = "MEMUAT", minDuration = 900 }) {
         <div className="mt-6 text-[11px] font-mono tracking-[0.3em] text-black/60 uppercase" data-testid="loading-caption">
           {label}{".".repeat(tick)}
         </div>
-        <h1 className="mt-2 font-display font-black text-4xl sm:text-5xl md:text-6xl tracking-tighter text-black">
-          FINLY
-        </h1>
-        <p className="mt-2 text-sm font-mono text-black/70 max-w-xs">
+        <div className="mt-3">
+          <Logo size="xl" data-testid="loading-logo" />
+        </div>
+        <p className="mt-4 text-sm font-mono text-black/70 max-w-xs">
           Menyiapkan buku besar dan model prediksi Anda.
         </p>
 
@@ -76,8 +77,8 @@ export default function LoadingScreen({ label = "MEMUAT", minDuration = 900 }) {
       </div>
 
       {/* Corner labels */}
-      <div className="absolute top-4 left-4 font-mono text-[10px] tracking-[0.2em] text-black/50">FINLY · v1</div>
-      <div className="absolute top-4 right-4 font-mono text-[10px] tracking-[0.2em] text-black/50">IDR · ID-ID</div>
+      <div className="absolute top-4 left-4 font-mono text-[10px] tracking-[0.2em] text-black/50" data-testid="loading-corner-left">FINLY · v1</div>
+      <div className="absolute top-4 right-4 font-mono text-[10px] tracking-[0.2em] text-black/50" data-testid="loading-corner-right">IDR · ID-ID</div>
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-[0.2em] text-black/50">
         FOR YOUR FUTURE ·
       </div>

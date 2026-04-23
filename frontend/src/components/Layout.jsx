@@ -2,9 +2,10 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   House, Receipt, ChartBar, ListBullets, Cpu, ClockCounterClockwise, SignOut,
-  CircleDashed, List, X,
+  CircleDashed, List,
 } from "@phosphor-icons/react";
 import api from "../services/api";
+import Logo from "./Logo";
 
 const NAV = [
   { to: "/", label: "Beranda", icon: House, end: true, testid: "nav-dashboard" },
@@ -22,10 +23,10 @@ function SidebarBody({ onNavigate, onLogout, user }) {
   return (
     <>
       <div className="p-5 border-b-2 hairline-strong flex items-center gap-3 bg-[var(--brand-bg)]">
-        <div className="w-10 h-10 bg-black text-[var(--brand-bg)] flex items-center justify-center font-display font-black text-xl border-2 border-black">F</div>
+        <Logo size="md" />
         <div>
-          <div className="font-display font-black text-lg tracking-tighter leading-none">FINLY</div>
-          <div className="overline mt-1">Financial · ID</div>
+          <div className="overline leading-none">Financial · ID</div>
+          <div className="text-[10px] font-mono text-[var(--ink-soft)] mt-1">LEDGER · LSTM</div>
         </div>
       </div>
 

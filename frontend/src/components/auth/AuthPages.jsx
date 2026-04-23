@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { ArrowRight } from "@phosphor-icons/react";
+import Logo from "../Logo";
 
 function AuthShell({ children, titleTop, titleBottom, subtitle }) {
   return (
@@ -15,10 +16,10 @@ function AuthShell({ children, titleTop, titleBottom, subtitle }) {
 
         <div className="relative z-10 max-w-md w-full">
           <div className="flex items-center gap-3 mb-6 lg:mb-10">
-            <div className="w-10 h-10 bg-black text-[var(--brand-bg)] flex items-center justify-center font-display font-black text-xl border-2 border-black">F</div>
+            <Logo size="md" />
             <div>
-              <div className="font-display font-black text-xl tracking-tighter">FINLY</div>
               <div className="overline">FINANCIAL · EST 2026</div>
+              <div className="text-[10px] font-mono text-[var(--ink-soft)] mt-1">LEDGER · LSTM</div>
             </div>
           </div>
 
