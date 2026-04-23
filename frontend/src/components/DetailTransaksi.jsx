@@ -55,11 +55,11 @@ export default function DetailTransaksi() {
   const totalPages = Math.max(1, Math.ceil(data.total / 20));
 
   return (
-    <div className="px-8 py-8 space-y-6" data-testid="detail-page">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b hairline-strong pb-6">
+    <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6" data-testid="detail-page">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b-2 hairline-strong pb-6">
         <div>
           <div className="overline">MODUL 04 · AUDIT TRAIL</div>
-          <h1 className="font-display font-black text-5xl tracking-tighter mt-2">Detail Transaksi</h1>
+          <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl tracking-tighter mt-2">Detail Transaksi</h1>
         </div>
         <button onClick={exportCSV} className="btn-ghost flex items-center gap-2 self-start md:self-auto" data-testid="detail-export-csv">
           <DownloadSimple size={14} /> Export CSV

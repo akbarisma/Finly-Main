@@ -44,11 +44,11 @@ export default function Prediction() {
   }));
 
   return (
-    <div className="px-8 py-8 space-y-6" data-testid="prediksi-page">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b hairline-strong pb-6">
+    <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6" data-testid="prediksi-page">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b-2 hairline-strong pb-6">
         <div>
           <div className="overline">MODUL 05 · INTELIJEN</div>
-          <h1 className="font-display font-black text-5xl tracking-tighter mt-2">Prediksi ML</h1>
+          <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl tracking-tighter mt-2">Prediksi ML</h1>
           <p className="text-sm text-[var(--ink-soft)] mt-2 font-mono">LSTM forecasting — hasil inverse-scaled dari model pre-trained.</p>
         </div>
         <div className="flex items-center gap-2 text-xs font-mono">

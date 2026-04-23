@@ -3,40 +3,51 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { ArrowRight } from "@phosphor-icons/react";
 
-const HERO = "https://static.prod-images.emergentagent.com/jobs/f89a3af3-54d1-4851-9f16-06fb867da19f/images/821e45636459871532c1f3806bccf6726cd7b73bbe3c39f47177c080851ee430.png";
-
 function AuthShell({ children, titleTop, titleBottom, subtitle }) {
   return (
-    <div className="min-h-screen flex">
-      <div className="hidden lg:flex w-1/2 relative bg-[var(--ink)] text-white overflow-hidden">
-        <img
-          src={HERO}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover grayscale opacity-70"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        <div className="relative z-10 flex flex-col justify-between p-12 w-full">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-white text-[var(--ink)] flex items-center justify-center font-display font-black text-xl">F</div>
-            <div className="font-display font-black text-xl tracking-tighter">FINLY</div>
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[var(--brand-bg)]">
+      {/* Left: yellow canvas with hero illustration */}
+      <div className="relative lg:w-1/2 flex items-center justify-center p-6 sm:p-10 lg:p-12 overflow-hidden">
+        {/* Floating coins */}
+        <span className="coin coin-a hidden sm:grid">$</span>
+        <span className="coin coin-b hidden sm:grid">$</span>
+        <span className="coin coin-c hidden lg:grid">$</span>
+
+        <div className="relative z-10 max-w-md w-full">
+          <div className="flex items-center gap-3 mb-6 lg:mb-10">
+            <div className="w-10 h-10 bg-black text-[var(--brand-bg)] flex items-center justify-center font-display font-black text-xl border-2 border-black">F</div>
+            <div>
+              <div className="font-display font-black text-xl tracking-tighter">FINLY</div>
+              <div className="overline">FINANCIAL · EST 2026</div>
+            </div>
           </div>
-          <div>
-            <div className="overline text-white/70 mb-4">FINANCIAL ANALYST · EST 2026</div>
-            <h1 className="font-display font-black text-5xl xl:text-6xl tracking-tighter leading-[0.95]">
-              {titleTop}
-              <br />
-              <span className="text-white/60">{titleBottom}</span>
-            </h1>
-            <p className="mt-6 text-sm text-white/70 max-w-md font-mono">{subtitle}</p>
+
+          <div className="brut-card-solid p-4 bg-white mb-6 lg:mb-8 inline-block">
+            <img
+              src="/assets/finly-hero.png"
+              alt="Finly"
+              className="w-[240px] sm:w-[300px] lg:w-[360px] object-contain"
+              draggable="false"
+            />
           </div>
-          <div className="flex items-center gap-8 text-[11px] font-mono text-white/60">
-            <span>LSTM · FORECAST</span>
-            <span>IDR · ID-ID</span>
-            <span>RT · REALTIME</span>
+
+          <h1 className="font-display font-black text-4xl sm:text-5xl xl:text-6xl tracking-tighter leading-[0.95] text-black">
+            {titleTop}
+            <br />
+            <span className="bg-black text-[var(--brand-bg)] px-2 inline-block">{titleBottom}</span>
+          </h1>
+          <p className="mt-5 text-sm text-black/75 max-w-md font-mono">{subtitle}</p>
+
+          <div className="mt-6 lg:mt-10 hidden sm:flex items-center gap-4 lg:gap-6 text-[11px] font-mono text-black/60">
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 bg-[var(--pos)]" />LSTM FORECAST</span>
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 bg-[var(--neg)]" />IDR · ID-ID</span>
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 bg-black" />REALTIME</span>
           </div>
         </div>
       </div>
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-[var(--bg)]">
+
+      {/* Right: white form panel */}
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12 bg-white border-t-2 lg:border-t-0 lg:border-l-2 hairline-strong">
         <div className="w-full max-w-md">{children}</div>
       </div>
     </div>

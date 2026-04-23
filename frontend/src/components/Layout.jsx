@@ -1,7 +1,8 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
-  House, Receipt, ChartBar, ListBullets, Cpu, ClockCounterClockwise, SignOut, CircleDashed,
+  House, Receipt, ChartBar, ListBullets, Cpu, ClockCounterClockwise, SignOut,
+  CircleDashed, List, X,
 } from "@phosphor-icons/react";
 import api from "../services/api";
 
@@ -14,17 +15,88 @@ const NAV = [
   { to: "/history", label: "Riwayat", icon: ClockCounterClockwise, testid: "nav-history" },
 ];
 
+function SidebarBody({ onNavigate, onLogout, user }) {
+  const displayName = user?.name || user?.email || "User";
+  const initials = (displayName.split(" ").map((p) => p[0]).join("").slice(0, 2) || "F").toUpperCase();
+
+  return (
+    <>
+      <div className="p-5 border-b-2 hairline-strong flex items-center gap-3 bg-[var(--brand-bg)]">
+        <div className="w-10 h-10 bg-black text-[var(--brand-bg)] flex items-center justify-center font-display font-black text-xl border-2 border-black">F</div>
+        <div>
+          <div className="font-display font-black text-lg tracking-tighter leading-none">FINLY</div>
+          <div className="overline mt-1">Financial · ID</div>
+        </div>
+      </div>
+
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto scroll-custom">
+        <div className="overline px-2 pb-2 pt-1">Modul</div>
+        {NAV.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            data-testid={item.testid}
+            onClick={onNavigate}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3 py-2.5 text-sm font-semibold border-2 transition-all ${
+                isActive
+                  ? "bg-black text-[var(--brand-bg)] border-black shadow-[3px_3px_0_0_var(--ink)]"
+                  : "bg-white text-[var(--ink)] border-transparent hover:border-black hover:translate-x-[-1px]"
+              }`
+            }
+          >
+            <item.icon size={18} weight="regular" />
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="p-4 border-t-2 hairline-strong space-y-3 bg-[var(--brand-bg-soft)]">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-black text-[var(--brand-bg)] border-2 border-black flex items-center justify-center font-mono font-bold text-sm">{initials}</div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-bold truncate" data-testid="user-name">{displayName}</div>
+            <div className="text-[11px] text-[var(--ink-soft)] truncate font-mono">{user?.email}</div>
+          </div>
+        </div>
+        <button
+          onClick={onLogout}
+          data-testid="logout-button"
+          className="w-full btn-ghost flex items-center justify-center gap-2 py-2 !text-xs"
+        >
+          <SignOut size={14} /> Keluar
+        </button>
+      </div>
+    </>
+  );
+}
+
 export default function Layout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem("user_data") || "{}"); }
     catch { return {}; }
   });
   const [clock, setClock] = useState(new Date());
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const t = setInterval(() => setClock(new Date()), 60_000);
     return () => clearInterval(t);
+  }, []);
+
+  // Close mobile sidebar on route change
+  useEffect(() => { setMobileOpen(false); }, [location.pathname]);
+
+  // Keep user state in sync if it changes elsewhere
+  useEffect(() => {
+    const sync = () => {
+      try { setUser(JSON.parse(localStorage.getItem("user_data") || "{}")); } catch { /* noop */ }
+    };
+    window.addEventListener("storage", sync);
+    return () => window.removeEventListener("storage", sync);
   }, []);
 
   const handleLogout = async () => {
@@ -34,80 +106,52 @@ export default function Layout() {
     navigate("/login");
   };
 
-  const displayName = user?.name || user?.email || "User";
-  const initials = (displayName.split(" ").map((p) => p[0]).join("").slice(0, 2) || "F").toUpperCase();
-
   return (
-    <div className="min-h-screen flex bg-[var(--bg)]">
-      {/* Sidebar */}
+    <div className="min-h-screen flex bg-[var(--brand-bg)]">
+      {/* Desktop sidebar */}
       <aside
-        className="w-64 shrink-0 border-r hairline-strong bg-white flex flex-col sticky top-0 h-screen"
+        className="hidden lg:flex w-64 shrink-0 border-r-2 hairline-strong bg-white flex-col sticky top-0 h-screen"
         data-testid="sidebar"
       >
-        <div className="p-6 border-b hairline-strong">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[var(--ink)] text-white flex items-center justify-center font-display font-black text-lg">F</div>
-            <div>
-              <div className="font-display font-black text-lg tracking-tighter leading-none">FINLY</div>
-              <div className="overline mt-1">Financial · ID</div>
-            </div>
-          </div>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-1">
-          <div className="overline px-3 pb-2 pt-2">Modul</div>
-          {NAV.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              data-testid={item.testid}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 text-sm border-l-2 transition-colors ${
-                  isActive
-                    ? "bg-[var(--ink)] text-white border-[var(--ink)] font-semibold"
-                    : "text-[var(--ink)] border-transparent hover:bg-black/5"
-                }`
-              }
-            >
-              <item.icon size={18} weight="regular" />
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="p-4 border-t hairline-strong space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 border hairline-strong flex items-center justify-center font-mono text-sm">{initials}</div>
-            <div className="min-w-0">
-              <div className="text-sm font-semibold truncate" data-testid="user-name">{displayName}</div>
-              <div className="text-xs text-[var(--ink-soft)] truncate font-mono">{user?.email}</div>
-            </div>
-          </div>
-          <button
-            onClick={handleLogout}
-            data-testid="logout-button"
-            className="w-full btn-ghost flex items-center justify-center gap-2 py-2"
-          >
-            <SignOut size={14} /> Keluar
-          </button>
-        </div>
+        <SidebarBody onNavigate={() => {}} onLogout={handleLogout} user={user} />
       </aside>
 
-      {/* Main */}
-      <main className="flex-1 min-w-0 flex flex-col">
-        <div className="border-b hairline-strong bg-white">
-          <div className="flex items-center justify-between px-8 py-3 text-[11px] font-mono text-[var(--ink-soft)]">
-            <div className="flex items-center gap-6">
-              <span className="flex items-center gap-2">
-                <CircleDashed size={12} className="blink-dot" weight="fill" />
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <>
+          <div className="backdrop lg:hidden" onClick={() => setMobileOpen(false)} data-testid="mobile-backdrop" />
+          <aside
+            className="fixed top-0 left-0 bottom-0 z-50 w-72 bg-white border-r-2 hairline-strong flex flex-col lg:hidden slide-in-left"
+            data-testid="sidebar-mobile"
+          >
+            <SidebarBody onNavigate={() => setMobileOpen(false)} onLogout={handleLogout} user={user} />
+          </aside>
+        </>
+      )}
+
+      {/* Main column */}
+      <main className="flex-1 min-w-0 flex flex-col canvas-noise">
+        {/* Top bar */}
+        <div className="border-b-2 hairline-strong bg-white sticky top-0 z-20">
+          <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 text-[11px] font-mono text-[var(--ink)]">
+            <div className="flex items-center gap-3 sm:gap-6">
+              <button
+                onClick={() => setMobileOpen(true)}
+                className="lg:hidden btn-ghost !p-2 !shadow-none !border-2"
+                data-testid="mobile-menu-toggle"
+                aria-label="Buka menu"
+              >
+                <List size={18} />
+              </button>
+              <span className="hidden sm:flex items-center gap-2">
+                <CircleDashed size={12} className="blink-dot text-[var(--pos)]" weight="fill" />
                 FINLY·LEDGER v1.0
               </span>
-              <span>UPTIME · {clock.toLocaleDateString("id-ID")}</span>
+              <span className="hidden md:inline">UPTIME · {clock.toLocaleDateString("id-ID")}</span>
             </div>
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3 sm:gap-6">
               <span>{clock.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} WIB</span>
-              <span>IDR · ID-ID</span>
+              <span className="hidden sm:inline">IDR · ID-ID</span>
             </div>
           </div>
         </div>

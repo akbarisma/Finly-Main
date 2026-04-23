@@ -46,12 +46,12 @@ export default function Dashboard() {
   const plPositive = pl >= 0;
 
   return (
-    <div className="px-8 py-8 space-y-6" data-testid="dashboard-page">
+    <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6" data-testid="dashboard-page">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b hairline-strong pb-6">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b-2 hairline-strong pb-6">
         <div>
           <div className="overline">BERANDA · RINGKASAN BULANAN</div>
-          <h1 className="font-display font-black text-5xl tracking-tighter mt-2">
+          <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl tracking-tighter mt-2">
             {monthLabel(month)}
           </h1>
           <div className="ticker mt-2">PERIODE · {month}-01 → {month}-31</div>
