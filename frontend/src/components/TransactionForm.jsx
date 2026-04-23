@@ -76,7 +76,7 @@ export default function TransactionForm() {
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6" data-testid="transaksi-page">
-      <div className="border-b-2 hairline-strong pb-6">
+      <div className="page-hero">
         <div className="overline">MODUL 02 · PENCATATAN</div>
         <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl tracking-tighter mt-2">Transaksi</h1>
         <p className="text-sm text-[var(--ink-soft)] mt-2 font-mono">Catat pemasukan & pengeluaran harian.</p>

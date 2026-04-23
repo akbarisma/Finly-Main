@@ -54,7 +54,7 @@ body {
 .hairline { border-color: var(--line); }
 .hairline-strong { border-color: var(--line-strong); }
 
-/* ─── Cards: white on yellow with thick black borders (brutalist + vivid) ─── */
+/* ─── Cards: vivid yellow-dominant system ─── */
 .brut-card {
   background: var(--surface);
   border: 2px solid var(--line-strong);
@@ -76,6 +76,76 @@ body {
   border: 2px solid var(--line-strong);
   border-radius: 0;
 }
+
+/* Yellow-tinted card variant (used heavily to push the 70% yellow balance) */
+.brut-card-y {
+  background: var(--brand-bg);
+  border: 2px solid var(--line-strong);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 0 var(--line-strong);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.brut-card-y:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 0 var(--line-strong); }
+
+.brut-card-deep {
+  background: var(--brand-bg-deep);
+  border: 2px solid var(--line-strong);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 0 var(--line-strong);
+}
+
+/* Card header strip: thin yellow overline above main card */
+.card-head-y {
+  background: var(--brand-bg);
+  border-bottom: 2px solid var(--line-strong);
+  padding: 10px 16px;
+}
+
+/* Page hero banner — thick yellow module header */
+.page-hero {
+  position: relative;
+  background: var(--brand-bg);
+  border: 2px solid var(--line-strong);
+  box-shadow: 5px 5px 0 0 var(--line-strong);
+  padding: 1.25rem 1.5rem;
+  overflow: hidden;
+}
+.page-hero::before {
+  content: "";
+  position: absolute;
+  right: -2px; top: -2px; bottom: -2px;
+  width: 120px;
+  background:
+    repeating-linear-gradient(45deg, var(--line-strong) 0 8px, transparent 8px 16px);
+  border-left: 2px solid var(--line-strong);
+  pointer-events: none;
+}
+@media (max-width: 640px) {
+  .page-hero::before { width: 60px; background-size: 10px 10px; }
+}
+
+/* Decorative diagonal stripes (small corner accents) */
+.stripes-corner {
+  background-image: repeating-linear-gradient(45deg, var(--line-strong) 0 6px, transparent 6px 12px);
+}
+
+/* Checker badge for stamps */
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 700;
+  background: var(--brand-bg);
+  border: 2px solid var(--line-strong);
+  box-shadow: 2px 2px 0 0 var(--line-strong);
+}
+.stamp-neg { background: #FEE2E2; border-color: var(--neg); color: var(--neg); }
+.stamp-pos { background: #D1FAE5; border-color: var(--pos); color: var(--pos); }
 
 /* ─── Buttons ─── */
 .btn-ink {
@@ -355,5 +425,79 @@ table.brut-table tr:hover td { background: #FFFBEB; }
 /* ─── Mobile-first adjustments ─── */
 @media (max-width: 768px) {
   .coin-a, .coin-b { display: none; }
-  .brut-card { box-shadow: 3px 3px 0 0 var(--line-strong); }
+  .brut-card, .brut-card-y { box-shadow: 3px 3px 0 0 var(--line-strong); }
+  .page-hero { box-shadow: 3px 3px 0 0 var(--line-strong); padding: 1rem 1rem; }
+}
+
+/* ─── Stagger entrance animations ─── */
+@keyframes stagger-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.stagger > * { animation: stagger-up 420ms cubic-bezier(.2,.9,.3,1) both; }
+.stagger > *:nth-child(1) { animation-delay: 40ms; }
+.stagger > *:nth-child(2) { animation-delay: 120ms; }
+.stagger > *:nth-child(3) { animation-delay: 200ms; }
+.stagger > *:nth-child(4) { animation-delay: 280ms; }
+.stagger > *:nth-child(5) { animation-delay: 360ms; }
+.stagger > *:nth-child(6) { animation-delay: 440ms; }
+
+/* ─── Ticker line (marquee-ish) ─── */
+@keyframes ticker-slide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-row {
+  display: flex;
+  gap: 2rem;
+  animation: ticker-slide 30s linear infinite;
+  white-space: nowrap;
+  will-change: transform;
+}
+.ticker-mask {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+/* ─── Top bar yellow (pushes 70% yellow balance) ─── */
+.topbar-y {
+  background: var(--brand-bg);
+  border-bottom: 2px solid var(--line-strong);
+}
+.topbar-y::after {
+  content: "";
+  display: block;
+  height: 4px;
+  background:
+    repeating-linear-gradient(90deg, var(--line-strong) 0 12px, transparent 12px 20px);
+}
+
+/* ─── Big KPI that uses yellow tint instead of white ─── */
+.kpi-yellow {
+  background: var(--brand-bg);
+  border: 2px solid var(--line-strong);
+  box-shadow: 4px 4px 0 0 var(--line-strong);
+  position: relative;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.kpi-yellow:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 0 var(--line-strong); }
+.kpi-yellow::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, var(--line-strong) 0 8px, transparent 8px 14px);
+}
+
+.pulse-dot {
+  width: 8px; height: 8px;
+  background: var(--pos);
+  border-radius: 50%;
+  animation: pulse-ring 1.6s ease-out infinite;
+  position: relative;
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.5); }
+  80%, 100% { box-shadow: 0 0 0 10px rgba(5, 150, 105, 0); }
 }

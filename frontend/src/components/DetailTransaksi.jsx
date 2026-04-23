@@ -56,7 +56,7 @@ export default function DetailTransaksi() {
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6" data-testid="detail-page">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b-2 hairline-strong pb-6">
+      <div className="page-hero flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
           <div className="overline">MODUL 04 · AUDIT TRAIL</div>
           <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl tracking-tighter mt-2">Detail Transaksi</h1>
@@ -97,21 +97,21 @@ export default function DetailTransaksi() {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="brut-card p-5">
-          <div className="overline">TOTAL ENTRI</div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 stagger">
+        <div className="kpi-yellow p-5">
+          <div className="overline font-bold">TOTAL ENTRI</div>
           <div className="kpi-value text-3xl mt-2" data-testid="detail-total-count">{data.total}</div>
         </div>
         <div className="brut-card p-5">
-          <div className="overline">Σ PEMASUKAN</div>
+          <div className="overline font-bold">Σ PEMASUKAN</div>
           <div className="kpi-value text-3xl mt-2 text-pos" data-testid="detail-total-income">{formatRupiah(data.totals?.income)}</div>
         </div>
-        <div className="brut-card p-5">
-          <div className="overline">Σ PENGELUARAN</div>
+        <div className="kpi-yellow p-5">
+          <div className="overline font-bold">Σ PENGELUARAN</div>
           <div className="kpi-value text-3xl mt-2 text-neg" data-testid="detail-total-outcome">{formatRupiah(data.totals?.outcome)}</div>
         </div>
         <div className="brut-card p-5">
-          <div className="overline">NET</div>
+          <div className="overline font-bold">NET</div>
           <div className={`kpi-value text-3xl mt-2 ${data.net >= 0 ? "text-pos" : "text-neg"}`} data-testid="detail-net">{formatRupiah(data.net)}</div>
         </div>
       </div>

@@ -52,7 +52,7 @@ export default function PredictionHistory() {
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6" data-testid="history-page">
-      <div className="border-b-2 hairline-strong pb-6">
+      <div className="page-hero">
         <div className="overline">MODUL 06 · ARSIP</div>
         <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl tracking-tighter mt-2">Riwayat Prediksi</h1>
         <p className="text-sm text-[var(--ink-soft)] mt-2 font-mono">Semua forecast yang pernah dijalankan.</p>

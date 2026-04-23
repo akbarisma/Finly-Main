@@ -1,8 +1,7 @@
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
-  House, Receipt, ChartBar, ListBullets, Cpu, ClockCounterClockwise, SignOut,
-  CircleDashed, List,
+  House, Receipt, ChartBar, ListBullets, Cpu, ClockCounterClockwise, SignOut, List,
 } from "@phosphor-icons/react";
 import api from "../services/api";
 import Logo from "./Logo";
@@ -22,16 +21,17 @@ function SidebarBody({ onNavigate, onLogout, user }) {
 
   return (
     <>
-      <div className="p-5 border-b-2 hairline-strong flex items-center gap-3 bg-[var(--brand-bg)]">
+      <div className="p-5 border-b-2 hairline-strong flex items-center gap-3 bg-[var(--brand-bg-deep)] relative">
         <Logo size="md" />
         <div>
-          <div className="overline leading-none">Financial · ID</div>
+          <div className="overline leading-none font-bold">Financial · ID</div>
           <div className="text-[10px] font-mono text-[var(--ink-soft)] mt-1">LEDGER · LSTM</div>
         </div>
+        <div className="absolute right-0 top-0 bottom-0 w-4 stripes-corner" />
       </div>
 
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto scroll-custom">
-        <div className="overline px-2 pb-2 pt-1">Modul</div>
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto scroll-custom bg-[var(--brand-bg)]">
+        <div className="overline px-2 pb-2 pt-1 font-bold">Modul</div>
         {NAV.map((item) => (
           <NavLink
             key={item.to}
@@ -43,11 +43,11 @@ function SidebarBody({ onNavigate, onLogout, user }) {
               `flex items-center gap-3 px-3 py-2.5 text-sm font-semibold border-2 transition-all ${
                 isActive
                   ? "bg-black text-[var(--brand-bg)] border-black shadow-[3px_3px_0_0_var(--ink)]"
-                  : "bg-white text-[var(--ink)] border-transparent hover:border-black hover:translate-x-[-1px]"
+                  : "bg-white text-[var(--ink)] border-black hover:translate-x-[-2px] hover:shadow-[3px_3px_0_0_var(--ink)]"
               }`
             }
           >
-            <item.icon size={18} weight="regular" />
+            <item.icon size={18} weight="bold" />
             <span>{item.label}</span>
           </NavLink>
         ))}
@@ -132,8 +132,8 @@ export default function Layout() {
 
       {/* Main column */}
       <main className="flex-1 min-w-0 flex flex-col canvas-noise">
-        {/* Top bar */}
-        <div className="border-b-2 hairline-strong bg-white sticky top-0 z-20">
+        {/* Top bar — yellow */}
+        <div className="topbar-y sticky top-0 z-20">
           <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 text-[11px] font-mono text-[var(--ink)]">
             <div className="flex items-center gap-3 sm:gap-6">
               <button
@@ -144,13 +144,13 @@ export default function Layout() {
               >
                 <List size={18} />
               </button>
-              <span className="hidden sm:flex items-center gap-2">
-                <CircleDashed size={12} className="blink-dot text-[var(--pos)]" weight="fill" />
-                FINLY·LEDGER v1.0
+              <span className="hidden sm:flex items-center gap-2 font-bold">
+                <span className="pulse-dot" />
+                FINLY·LEDGER <span className="opacity-60">v1.0</span>
               </span>
-              <span className="hidden md:inline">UPTIME · {clock.toLocaleDateString("id-ID")}</span>
+              <span className="hidden md:inline font-bold">UPTIME · {clock.toLocaleDateString("id-ID")}</span>
             </div>
-            <div className="flex items-center gap-3 sm:gap-6">
+            <div className="flex items-center gap-3 sm:gap-6 font-bold">
               <span>{clock.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} WIB</span>
               <span className="hidden sm:inline">IDR · ID-ID</span>
             </div>

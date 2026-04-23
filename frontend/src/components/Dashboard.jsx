@@ -9,12 +9,17 @@ import { formatRupiah, formatShort, currentMonth, monthLabel } from "../services
 
 const colors = { income: "#059669", outcome: "#E11D48", ink: "#0A0A0A" };
 
-function KPI({ label, value, sub, accent, testid, icon: Icon }) {
+function KPI({ label, value, sub, accent, testid, icon: Icon, variant = "white" }) {
+  const base = variant === "yellow" ? "kpi-yellow" : "brut-card";
   return (
-    <div className="brut-card p-6 flex flex-col justify-between min-h-[150px]" data-testid={testid}>
+    <div className={`${base} p-6 flex flex-col justify-between min-h-[160px]`} data-testid={testid}>
       <div className="flex items-start justify-between">
-        <div className="overline">{label}</div>
-        {Icon && <Icon size={18} weight="regular" className="text-[var(--ink-soft)]" />}
+        <div className="overline font-bold">{label}</div>
+        {Icon && (
+          <div className="w-8 h-8 bg-black text-[var(--brand-bg)] border-2 border-black flex items-center justify-center">
+            <Icon size={16} weight="bold" />
+          </div>
+        )}
       </div>
       <div>
         <div className={`kpi-value text-4xl ${accent || ""}`}>{value}</div>
@@ -47,17 +52,17 @@ export default function Dashboard() {
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6" data-testid="dashboard-page">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b-2 hairline-strong pb-6">
-        <div>
-          <div className="overline">BERANDA · RINGKASAN BULANAN</div>
-          <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl tracking-tighter mt-2">
+      {/* Hero banner */}
+      <div className="page-hero flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div className="relative z-10">
+          <div className="overline font-bold">BERANDA · RINGKASAN BULANAN</div>
+          <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-6xl tracking-tighter mt-2 leading-none">
             {monthLabel(month)}
           </h1>
-          <div className="ticker mt-2">PERIODE · {month}-01 → {month}-31</div>
+          <div className="ticker mt-2 font-bold">PERIODE · {month}-01 → {month}-31</div>
         </div>
-        <div className="flex items-center gap-3">
-          <label className="overline">BULAN</label>
+        <div className="flex items-center gap-3 relative z-10">
+          <label className="overline font-bold">BULAN</label>
           <input
             type="month"
             className="input-brut input-mono max-w-[200px]"
@@ -69,13 +74,14 @@ export default function Dashboard() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger">
         <KPI
           label="Total Pendapatan"
           value={loading ? "…" : formatShort(data?.revenue)}
           sub={data ? formatRupiah(data.revenue) : ""}
           accent="text-pos"
           icon={ArrowUpRight}
+          variant="yellow"
           testid="kpi-revenue"
         />
         <KPI
@@ -84,6 +90,7 @@ export default function Dashboard() {
           sub={data ? `${formatRupiah(data.outcome)} · Anggaran ${formatRupiah(data.budget_total)}${data.monthly_capital ? ` · Modal ${formatRupiah(data.monthly_capital)}` : ""}` : ""}
           accent="text-neg"
           icon={ArrowDownRight}
+          variant="white"
           testid="kpi-outcome"
         />
         <KPI
@@ -92,6 +99,7 @@ export default function Dashboard() {
           sub={plPositive ? "SURPLUS" : "DEFISIT"}
           accent={plPositive ? "text-pos" : "text-neg"}
           icon={TrendUp}
+          variant="yellow"
           testid="kpi-profit-loss"
         />
         <KPI
@@ -99,6 +107,7 @@ export default function Dashboard() {
           value={loading ? "…" : String(data?.transaction_count ?? 0)}
           sub="entri bulan ini"
           icon={Receipt}
+          variant="white"
           testid="kpi-tx-count"
         />
       </div>

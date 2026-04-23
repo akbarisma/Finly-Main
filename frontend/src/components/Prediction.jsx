@@ -45,7 +45,7 @@ export default function Prediction() {
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6" data-testid="prediksi-page">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b-2 hairline-strong pb-6">
+      <div className="page-hero flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
           <div className="overline">MODUL 05 · INTELIJEN</div>
           <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl tracking-tighter mt-2">Prediksi ML</h1>
@@ -117,7 +117,7 @@ export default function Prediction() {
       {/* Results */}
       {result && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 stagger">
             <div className="ml-panel p-5 relative">
               <div className="overline text-white/60 relative z-10">TOTAL PREDIKSI</div>
               <div className="kpi-value text-3xl ml-glow mt-2 relative z-10" data-testid="prediksi-total">{formatShort(result.summary.total)}</div>

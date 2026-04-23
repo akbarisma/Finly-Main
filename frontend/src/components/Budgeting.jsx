@@ -106,7 +106,7 @@ export default function Budgeting() {
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6" data-testid="budgeting-page">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b-2 hairline-strong pb-6">
+      <div className="page-hero flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
           <div className="overline">MODUL 03 · ANGGARAN BULANAN</div>
           <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl tracking-tighter mt-2">Anggaran</h1>
@@ -186,8 +186,8 @@ export default function Budgeting() {
       </div>
 
       {/* Summary strip */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="brut-card p-5" data-testid="budget-total-plan">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger">
+        <div className="kpi-yellow p-5" data-testid="budget-total-plan">
           <div className="overline">TOTAL ANGGARAN</div>
           <div className="kpi-value text-3xl mt-2">{formatRupiah(totalBudget)}</div>
         </div>
@@ -195,7 +195,7 @@ export default function Budgeting() {
           <div className="overline">TOTAL REALISASI</div>
           <div className="kpi-value text-3xl mt-2 font-mono">{formatRupiah(totalReal)}</div>
         </div>
-        <div className="brut-card p-5" data-testid="budget-total-selisih">
+        <div className="kpi-yellow p-5" data-testid="budget-total-selisih">
           <div className="overline">SELISIH</div>
           <div className={`kpi-value text-3xl mt-2 ${totalBudget - totalReal >= 0 ? "text-pos" : "text-neg"}`}>
             {formatRupiah(totalBudget - totalReal)}
