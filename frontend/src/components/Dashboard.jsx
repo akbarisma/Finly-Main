@@ -80,8 +80,8 @@ export default function Dashboard() {
         />
         <KPI
           label="Total Pengeluaran"
-          value={loading ? "…" : formatShort((data?.outcome || 0) + (data?.budget_total || 0))}
-          sub={data ? `${formatRupiah(data.outcome)} · Anggaran ${formatRupiah(data.budget_total)}` : ""}
+          value={loading ? "…" : formatShort((data?.outcome || 0) + (data?.budget_total || 0) + (data?.monthly_capital || 0))}
+          sub={data ? `${formatRupiah(data.outcome)} · Anggaran ${formatRupiah(data.budget_total)}${data.monthly_capital ? ` · Modal ${formatRupiah(data.monthly_capital)}` : ""}` : ""}
           accent="text-neg"
           icon={ArrowDownRight}
           testid="kpi-outcome"

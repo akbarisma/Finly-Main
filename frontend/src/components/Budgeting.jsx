@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Trash, FloppyDisk } from "@phosphor-icons/react";
+import { Plus, Trash, FloppyDisk, Coin } from "@phosphor-icons/react";
 import api from "../services/api";
 import { formatRupiah, currentMonth, monthLabel, stripDigits, OUTCOME_CATEGORIES } from "../services/utils";
 
@@ -9,7 +9,9 @@ export default function Budgeting() {
   const [serverItems, setServerItems] = useState([]);
   const [totalBudget, setTotalBudget] = useState(0);
   const [totalReal, setTotalReal] = useState(0);
+  const [capital, setCapital] = useState({ amount: "", description: "", exists: false });
   const [msg, setMsg] = useState(null);
+  const [capMsg, setCapMsg] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
@@ -24,6 +26,12 @@ export default function Budgeting() {
       );
       setTotalBudget(d.total_budget);
       setTotalReal(d.total_realisasi);
+      const cap = d.monthly_capital;
+      setCapital({
+        amount: cap ? String(cap.amount) : "",
+        description: cap?.description || "",
+        exists: !!cap,
+      });
     } finally {
       setLoading(false);
     }
@@ -58,6 +66,38 @@ export default function Budgeting() {
     }
   };
 
+  const saveCapital = async () => {
+    if (!capital.amount || Number(capital.amount) < 0) {
+      setCapMsg({ kind: "err", text: "Nominal modal awal harus ≥ 0." });
+      return;
+    }
+    try {
+      await api.saveMonthlyCapital({
+        month,
+        amount: Number(capital.amount),
+        description: capital.description,
+      });
+      setCapMsg({ kind: "ok", text: "Modal awal tersimpan." });
+      load();
+      setTimeout(() => setCapMsg(null), 2500);
+    } catch (e) {
+      setCapMsg({ kind: "err", text: e?.response?.data?.detail || "Gagal menyimpan." });
+    }
+  };
+
+  const removeCapital = async () => {
+    if (!window.confirm("Hapus modal awal bulan ini?")) return;
+    try {
+      await api.deleteMonthlyCapital(month);
+      setCapital({ amount: "", description: "", exists: false });
+      setCapMsg({ kind: "ok", text: "Modal awal dihapus." });
+      setTimeout(() => setCapMsg(null), 2500);
+      load();
+    } catch (e) {
+      setCapMsg({ kind: "err", text: e?.response?.data?.detail || "Gagal menghapus." });
+    }
+  };
+
   const setRow = (i, patch) => {
     const copy = [...items];
     copy[i] = { ...copy[i], ...patch };
@@ -76,6 +116,73 @@ export default function Budgeting() {
           <label className="overline">BULAN</label>
           <input type="month" className="input-brut input-mono max-w-[200px]" value={month} onChange={(e) => setMonth(e.target.value)} data-testid="budget-month-picker" />
         </div>
+      </div>
+
+      {/* Modal Awal Bulan */}
+      <div className="brut-card p-6" data-testid="monthly-capital-card">
+        <div className="flex items-start justify-between mb-4 gap-4 flex-wrap">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 border hairline-strong flex items-center justify-center shrink-0">
+              <Coin size={20} weight="regular" />
+            </div>
+            <div>
+              <div className="overline">MODAL AWAL BULAN</div>
+              <div className="font-display font-bold text-xl tracking-tight mt-1">Pengeluaran di awal bulan</div>
+              <p className="text-xs text-[var(--ink-soft)] mt-1 font-mono max-w-md">
+                Nominal tetap yang dikeluarkan di awal bulan (mis. sewa tempat, stok awal, setoran modal). Otomatis ikut dihitung di Laba/Rugi Dashboard.
+              </p>
+            </div>
+          </div>
+          {capital.exists && (
+            <span className="tag tag-outcome" data-testid="monthly-capital-exists-badge">TERCATAT</span>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+          <div className="md:col-span-2">
+            <label className="label-brut">Nominal (Rp)</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-sm text-[var(--ink-soft)]">Rp</span>
+              <input
+                className="input-brut input-mono pl-10"
+                inputMode="numeric"
+                placeholder="0"
+                value={capital.amount ? Number(capital.amount).toLocaleString("id-ID") : ""}
+                onChange={(e) => setCapital({ ...capital, amount: stripDigits(e.target.value) })}
+                data-testid="monthly-capital-amount"
+              />
+            </div>
+            {capital.amount && (
+              <div className="ticker mt-1">{formatRupiah(capital.amount)}</div>
+            )}
+          </div>
+          <div className="md:col-span-2">
+            <label className="label-brut">Keterangan (opsional)</label>
+            <input
+              className="input-brut"
+              placeholder="Sewa tempat + stok awal"
+              value={capital.description}
+              onChange={(e) => setCapital({ ...capital, description: e.target.value })}
+              data-testid="monthly-capital-description"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button onClick={saveCapital} className="btn-ink flex items-center gap-2 flex-1 justify-center" data-testid="monthly-capital-save">
+              <FloppyDisk size={14} /> Simpan
+            </button>
+            {capital.exists && (
+              <button onClick={removeCapital} className="btn-ghost !px-3" data-testid="monthly-capital-delete">
+                <Trash size={14} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {capMsg && (
+          <div className={`mt-3 px-3 py-2 text-sm font-mono border ${capMsg.kind === "ok" ? "border-[var(--pos)] bg-pos-soft text-pos" : "border-[var(--neg)] bg-neg-soft text-neg"}`} data-testid="monthly-capital-message">
+            {capMsg.text}
+          </div>
+        )}
       </div>
 
       {/* Summary strip */}

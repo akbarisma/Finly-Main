@@ -42,6 +42,10 @@ export const api = {
   saveBudgets: (data) => unwrap(client.post(`/budgets`, data)),
   deleteBudget: (id) => unwrap(client.delete(`/budgets/${id}`)),
 
+  getMonthlyCapital: (month) => unwrap(client.get(`/monthly-capital`, { params: { month } })),
+  saveMonthlyCapital: (data) => unwrap(client.post(`/monthly-capital`, data)),
+  deleteMonthlyCapital: (month) => unwrap(client.delete(`/monthly-capital`, { params: { month } })),
+
   predict: (n_days) => unwrap(client.post(`/predict`, { n_days })),
   mlHealth: () => unwrap(client.get(`/ml/health`)),
 

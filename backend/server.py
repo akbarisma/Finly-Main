@@ -78,6 +78,12 @@ class PredictIn(BaseModel):
     n_days: int = Field(ge=1, le=90)
 
 
+class MonthlyCapitalIn(BaseModel):
+    month: str = Field(pattern=r"^\d{4}-\d{2}$")
+    amount: float = Field(ge=0)
+    description: Optional[str] = ""
+
+
 # ──────────────────────────── Helpers ────────────────────────────
 def hash_password(pw: str) -> str:
     return bcrypt.hashpw(pw.encode(), bcrypt.gensalt()).decode()
@@ -181,6 +187,11 @@ async def dashboard(
     ).to_list(1000)
     budget_total = round(sum(b["amount"] for b in budgets), 2)
 
+    capital_doc = await db.monthly_capital.find_one(
+        {"user_id": user["id"], "month": f"{month}-01"}, {"_id": 0}
+    )
+    monthly_capital = round(float(capital_doc["amount"]), 2) if capital_doc else 0.0
+
     daily: dict[str, dict] = {}
     for t in txs:
         d = t["date"]
@@ -204,7 +215,8 @@ async def dashboard(
         "revenue": revenue,
         "outcome": outcome,
         "budget_total": budget_total,
-        "profit_loss": round(revenue - (outcome + budget_total), 2),
+        "monthly_capital": monthly_capital,
+        "profit_loss": round(revenue - (outcome + budget_total + monthly_capital), 2),
         "transaction_count": len(txs),
         "daily_chart": daily_chart,
         "category_chart": category_chart,
@@ -330,12 +342,64 @@ async def get_budgets(
                 "status": "over",
             })
 
+    capital_doc = await db.monthly_capital.find_one(
+        {"user_id": user["id"], "month": f"{month}-01"}, {"_id": 0, "user_id": 0}
+    )
+
     return {
         "month": month,
         "budgets": items,
         "total_budget": round(sum(b["amount"] for b in budgets), 2),
         "total_realisasi": round(sum(realisasi.values()), 2),
+        "monthly_capital": capital_doc,
     }
+
+
+@api.get("/monthly-capital")
+async def get_monthly_capital(
+    month: str = Query(..., pattern=r"^\d{4}-\d{2}$"),
+    user: dict = Depends(current_user),
+):
+    doc = await db.monthly_capital.find_one(
+        {"user_id": user["id"], "month": f"{month}-01"}, {"_id": 0, "user_id": 0}
+    )
+    return {"month": month, "capital": doc}
+
+
+@api.post("/monthly-capital")
+async def save_monthly_capital(body: MonthlyCapitalIn, user: dict = Depends(current_user)):
+    month_key = f"{body.month}-01"
+    await db.monthly_capital.update_one(
+        {"user_id": user["id"], "month": month_key},
+        {
+            "$set": {
+                "user_id": user["id"],
+                "month": month_key,
+                "amount": float(body.amount),
+                "description": body.description or "",
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            },
+            "$setOnInsert": {
+                "id": str(uuid.uuid4()),
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            },
+        },
+        upsert=True,
+    )
+    return {"success": True}
+
+
+@api.delete("/monthly-capital")
+async def delete_monthly_capital(
+    month: str = Query(..., pattern=r"^\d{4}-\d{2}$"),
+    user: dict = Depends(current_user),
+):
+    r = await db.monthly_capital.delete_one(
+        {"user_id": user["id"], "month": f"{month}-01"}
+    )
+    if r.deleted_count == 0:
+        raise HTTPException(404, "Modal awal tidak ditemukan")
+    return {"success": True}
 
 
 @api.post("/budgets")
